@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Penguin Game</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #1a1a2e;
+        }
+        .font-game {
+            font-family: 'Press Start 2P', cursive;
+        }
+        #unity-container {
+            width: 100%;
+            height: 100%;
+        }
+        #loading-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: #1a1a2e;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 1rem;
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
+        }
+        #loading-overlay.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .spinner {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: 8px solid #444;
+            border-top-color: #00f6ff;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Unity Game Container -->
+    <div id="unity-container"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <p class="font-game" style="color: white; font-size: 1.25rem;">Loading Game...</p>
+    </div>
+
+    <script>
+        const unityContainer = document.getElementById('unity-container');
+        const loadingOverlay = document.getElementById('loading-overlay');
+
+        function loadUnityGame() {
+            // This is Unity's default build folder and loader script name.
+            // If you change the name in Unity's build settings, you must change it here too.
+            const buildName = "Build"; 
+            const loaderUrl = `game/Build/${buildName}.loader.js`;
+            
+            const config = {
+                dataUrl: `game/Build/${buildName}.data.unityweb`,
+                frameworkUrl: `game/Build/${buildName}.framework.js.unityweb`,
+                codeUrl: `game/Build/${buildName}.wasm.unityweb`,
+                streamingAssetsUrl: "StreamingAssets",
+                companyName: "YourCompanyName",
+                productName: "Flappy Penguin Game",
+                productVersion: "1.0",
+            };
+
+            const script = document.createElement("script");
+            script.src = loaderUrl;
+            script.onload = () => {
+                createUnityInstance(unityContainer, config, (progress) => {
+                    // You could update a progress bar here if you wanted.
+                }).then((unityInstance) => {
+                    // Game instance is ready. Fade out the loading screen.
+                    loadingOverlay.classList.add('fade-out');
+                    setTimeout(() => loadingOverlay.style.display = 'none', 500); // Hide after transition
+                }).catch((message) => {
+                    // If there's an error, show an alert.
+                    alert(message);
+                });
+            };
+            document.body.appendChild(script);
+        }
+        
+        // Start loading the game as soon as the window loads
+        window.onload = loadUnityGame;
+    </script>
+</body>
+</html>
