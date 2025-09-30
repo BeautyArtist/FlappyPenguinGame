@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Penguin Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            background-image:
+                radial-gradient(circle at 15% 50%, rgba(20, 83, 153, 0.3), transparent 30%),
+                radial-gradient(circle at 85% 30%, rgba(138, 43, 226, 0.2), transparent 40%),
+                radial-gradient(circle at 50% 90%, rgba(20, 153, 153, 0.2), transparent 40%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+        }
+
+        .font-game {
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        .btn-glow {
+            box-shadow: 0 0 5px #00f6ff, 0 0 10px #00f6ff, 0 0 15px #00f6ff;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .btn-glow:hover {
+            box-shadow: 0 0 10px #00f6ff, 0 0 20px #00f6ff, 0 0 30px #00f6ff, 0 0 40px #00f6ff;
+            transform: translateY(-3px);
+        }
+
+         .btn-secondary {
+            box-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff;
+        }
+
+        .btn-secondary:hover {
+             box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff00ff;
+             transform: translateY(-3px);
+        }
+
+        .glass-card {
+            background: rgba(26, 26, 46, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+        }
+        
+        #unity-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        .progress-bar-container {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 9999px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 9999px;
+            background: linear-gradient(90deg, #00f6ff, #ff00ff);
+            transition: width 0.5s ease-in-out;
+            box-shadow: 0 0 5px #00f6ff, 0 0 10px #ff00ff;
+            position: relative;
+        }
+
+        .target-point {
+            position: absolute;
+            width: 8px;
+            height: 16px;
+            background-color: white;
+            border-radius: 2px;
+            top: -6px;
+            transform: translateX(-50%);
+            cursor: pointer;
+        }
+
+        .target-label {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: #e0e0e0;
+            font-family: 'Roboto', sans-serif;
+            white-space: nowrap;
+        }
+
+        #loading-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 1rem;
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        #loading-overlay.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: 8px solid #444;
+            border-top-color: #00f6ff;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Header -->
+    <header class="py-8">
+        <div class="container mx-auto text-center px-4">
+            <div class="flex justify-center items-center mb-4">
+                 <img src="assets/logo.png" alt="Flappy Penguin" class="h-20 w-20 mr-4 rounded-full border-2 border-[#00f6ff]">
+                 <h1 class="text-4xl md:text-6xl font-game text-white drop-shadow-[0_0_10px_#00f6ff]">Flappy Penguin</h1>
+            </div>
+            <p class="text-lg text-gray-300">Get ready to flap your way to victory!</p>
+        </div>
+    </header>
+
+    <!-- Main Game Section -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="glass-card p-6 md:p-10 text-center">
+            <!-- Game Container -->
+            <div id="game-placeholder" class="bg-black/50 rounded-lg aspect-video max-w-4xl mx-auto mb-8 border-2 border-dashed border-[#00f6ff] flex items-center justify-center overflow-hidden">
+                 <video id="hero-video" src="assets/hero-video.mp4" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                 <div id="unity-container" class="w-full h-full hidden"></div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <button id="play-button" class="w-full sm:w-auto font-game text-lg bg-[#00f6ff] text-black py-4 px-10 rounded-full btn-glow transform hover:scale-105 transition-transform duration-300">
+                    Play Game
+                </button>
+                <button id="buy-button" class="w-full sm:w-auto font-game text-lg bg-transparent border-2 border-[#ff00ff] text-white py-4 px-10 rounded-full btn-secondary transform hover:scale-105 transition-transform duration-300">
+                    Buy FPG
+                </button>
+            </div>
+        </div>
+
+        <!-- Plan Section -->
+        <section id="plan" class="mt-16">
+            <h2 class="text-3xl md:text-4xl font-game text-center mb-10 text-white drop-shadow-[0_0_8px_#ff00ff]">Our Plan</h2>
+
+            <div class="glass-card p-6 md:p-8 mb-12">
+                <h3 class="font-bold text-2xl mb-6 text-[#00f6ff]">Project Milestones</h3>
+                <ol class="list-decimal list-inside space-y-4 text-lg">
+                    <li><span class="font-bold text-white">Phase 1:</span> Launching Game and Utility Coin</li>
+                    <li><span class="font-bold text-white">Phase 2:</span> Creating Exclusive NFT Collection</li>
+                    <li><span class="font-bold text-white">Phase 3:</span> Airdropping NFTs to Top Coin Holders</li>
+                    <li><span class="font-bold text-white">Phase 4:</span> Distributing Rewards from Creator Payouts</li>
+                </ol>
+            </div>
+
+
+            <!-- Creator Reward Target -->
+            <div class="glass-card p-6 md:p-8 mb-8">
+                <h3 class="font-bold text-2xl mb-4 text-[#00f6ff]">Creator Reward Target</h3>
+                <div class="relative pt-8 pb-8">
+                    <div class="progress-bar-container w-full h-4">
+                        <div id="creator-progress" class="progress-bar" style="width: 5%;"></div>
+                    </div>
+                    <div id="creator-targets" class="absolute top-0 w-full">
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Buy Back & Burn -->
+            <div class="glass-card p-6 md:p-8">
+                <h3 class="font-bold text-2xl mb-4 text-[#ff00ff]">Buy Back & Burn</h3>
+                 <div class="relative pt-8 pb-8">
+                    <div class="progress-bar-container w-full h-4">
+                        <div id="burn-progress" class="progress-bar" style="width: 2%; background: linear-gradient(90deg, #ff00ff, #ff6a00);"></div>
+                    </div>
+                     <div id="burn-targets" class="absolute top-0 w-full">
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer / Community -->
+     <footer class="py-12 mt-12 text-center">
+        <div class="container mx-auto px-4">
+             <a href="https://t.me/+gh0kbP7BaI45ZjBk" target="_blank" rel="noopener noreferrer" class="inline-flex items-center font-game text-lg bg-[#0088cc] text-white py-4 px-10 rounded-full btn-glow transform hover:scale-105 transition-transform duration-300 shadow-lg">
+                <svg class="w-8 h-8 mr-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-1.39.2-1.78l15.6-5.99c.78-.3 1.4.14 1.15.93L20.6 17.6c-.2 1.05-.8 1.3-1.55.83l-4.56-3.4-4.28 4.1c-.37.37-1.01.18-1.15-.3z"/>
+                </svg>
+                Join Community
+            </a>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="hidden">
+        <div class="spinner"></div>
+        <p class="font-game text-lg text-white">Loading Game...</p>
+    </div>
+
+    <!-- Modal -->
+    <div id="game-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center hidden z-50 p-4">
+        <div class="glass-card text-center p-8 rounded-lg max-w-sm w-full">
+            <h3 class="text-2xl font-game mb-4 text-[#ff00ff]">Coming Soon!</h3>
+            <p class="text-lg mb-6">The game is not ready yet, but our penguin is training hard! Stay tuned.</p>
+            <button id="close-modal" class="font-game bg-[#00f6ff] text-black py-2 px-6 rounded-full btn-glow">
+                OK
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        // !!! IMPORTANT !!!
+        // Change this to 'true' when you have added the Unity game files to the '/game/' folder.
+        const isGameReady = false; 
+        
+        // --- DOM ELEMENTS ---
+        const playButton = document.getElementById('play-button');
+        const buyButton = document.getElementById('buy-button');
+        const gameModal = document.getElementById('game-modal');
+        const closeModal = document.getElementById('close-modal');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const heroVideo = document.getElementById('hero-video');
+        const unityContainer = document.getElementById('unity-container');
+
+
+        // --- EVENT LISTENERS ---
+        playButton.addEventListener('click', () => {
+            if (isGameReady) {
+                // If game is ready, show loading screen and then load the game
+                loadingOverlay.classList.remove('hidden');
+                requestAnimationFrame(() => {
+                    loadingOverlay.classList.remove('fade-out');
+                });
+
+                // Hide video, show Unity container
+                heroVideo.classList.add('hidden');
+                unityContainer.classList.remove('hidden');
+                
+                // Load the Unity Game
+                loadUnityGame();
+
+            } else {
+                // If game is not ready, just show the 'Coming Soon' modal
+                gameModal.classList.remove('hidden');
+            }
+        });
+
+        closeModal.addEventListener('click', () => {
+            gameModal.classList.add('hidden');
+        });
+        
+        gameModal.addEventListener('click', (e) => {
+            if (e.target === gameModal) {
+                 gameModal.classList.add('hidden');
+            }
+        });
+
+        buyButton.addEventListener('click', () => {
+            window.open('https://raydium.io/swap/?inputCurrency=sol&outputCurrency=28ftk219Evyasf9pWd2j42qG6k6f4pTTEBqJj5r3E2p3&fixed=in', '_blank');
+        });
+
+        // --- UNITY GAME LOADER ---
+        function loadUnityGame() {
+            // This assumes your Unity build is named 'FlappyPenguinBuild'
+            // Replace 'FlappyPenguinBuild' with the actual name of your .loader.js file if it's different.
+            const buildName = "FlappyPenguinBuild"; 
+            const loaderUrl = `game/Build/${buildName}.loader.js`;
+            
+            const config = {
+                dataUrl: `game/Build/${buildName}.data.unityweb`,
+                frameworkUrl: `game/Build/${buildName}.framework.js.unityweb`,
+                codeUrl: `game/Build/${buildName}.wasm.unityweb`,
+                streamingAssetsUrl: "StreamingAssets",
+                companyName: "YourCompanyName",
+                productName: "Flappy Penguin Game",
+                productVersion: "1.0",
+                // This function will be called when the game is fully loaded
+                onProgress: (progress) => {
+                    if (progress === 1) {
+                         // Fade out loading overlay when done
+                        loadingOverlay.classList.add('fade-out');
+                        setTimeout(() => loadingOverlay.classList.add('hidden'), 500);
+                    }
+                },
+            };
+
+            const script = document.createElement("script");
+            script.src = loaderUrl;
+            script.onload = () => {
+                createUnityInstance(unityContainer, config, (progress) => {
+                    // You can add a more detailed progress bar here if you want
+                }).then((unityInstance) => {
+                    // Game instance created
+                }).catch((message) => {
+                    alert(message);
+                });
+            };
+            document.body.appendChild(script);
+        }
+        
+        // --- ROADMAP PROGRESS BAR LOGIC ---
+        const creatorTargets = [1, 10, 20, 30, 40, 50, 60, 70, 80, 100]; // in thousands
+        const burnTargets = [0.5, 5, 15, 25, 35, 45, 55, 65, 75, 95]; // in thousands
+
+        const creatorContainer = document.getElementById('creator-targets');
+        const burnContainer = document.getElementById('burn-targets');
+        
+        function createTargetPoints(container, targets, maxTarget) {
+            targets.forEach(target => {
+                const percentage = (target / maxTarget) * 100;
+                const point = document.createElement('div');
+                point.className = 'target-point';
+                point.style.left = `${percentage}%`;
+                
+                const label = document.createElement('span');
+                label.className = 'target-label';
+                label.textContent = `${target}k`;
+                
+                point.appendChild(label);
+                container.appendChild(point);
+            });
+        }
+        
+        createTargetPoints(creatorContainer, creatorTargets, 100);
+        createTargetPoints(burnContainer, burnTargets, 100);
+        
+    </script>
+
+</body>
+</html>
+
