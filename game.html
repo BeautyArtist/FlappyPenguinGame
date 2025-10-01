@@ -56,30 +56,26 @@
     </style>
 </head>
 <body>
-    <!-- Unity Game Container -->
     <div id="unity-container"></div>
 
-    <!-- Loading Overlay -->
     <div id="loading-overlay">
         <div class="spinner"></div>
         <p class="font-game" style="color: white; font-size: 1.25rem;">Loading Game...</p>
     </div>
 
-    
+
     <script>
         const unityContainer = document.getElementById('unity-container');
         const loadingOverlay = document.getElementById('loading-overlay');
 
         function loadUnityGame() {
-            // This is Unity's default build folder and loader script name.
-            // If you change the name in Unity's build settings, you must change it here too.
-            const buildName = "Build"; 
-            const loaderUrl = `game/Build/${buildName}.loader.js`;
-            
+            const buildName = "Build";
+            const loaderUrl = `game/${buildName}/${buildName}.loader.js`;
+
             const config = {
-                dataUrl: `game/Build/${buildName}.data.unityweb`,
-                frameworkUrl: `game/Build/${buildName}.framework.js.unityweb`,
-                codeUrl: `game/Build/${buildName}.wasm.unityweb`,
+                dataUrl: `game/${buildName}/${buildName}.data`,
+                frameworkUrl: `game/${buildName}/${buildName}.framework.js`,
+                codeUrl: `game/${buildName}/${buildName}.wasm`,
                 streamingAssetsUrl: "StreamingAssets",
                 companyName: "YourCompanyName",
                 productName: "Flappy Penguin Game",
@@ -102,7 +98,7 @@
             };
             document.body.appendChild(script);
         }
-        
+
         // Start loading the game as soon as the window loads
         window.onload = loadUnityGame;
     </script>

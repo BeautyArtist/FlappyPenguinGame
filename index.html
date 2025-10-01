@@ -50,7 +50,7 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 1rem;
         }
-        
+
         .progress-bar-container {
             background: rgba(0, 0, 0, 0.4);
             border-radius: 9999px;
@@ -94,7 +94,6 @@
 </head>
 <body class="min-h-screen">
 
-    <!-- Header -->
     <header class="py-8">
         <div class="container mx-auto text-center px-4">
             <div class="flex justify-center items-center mb-4">
@@ -105,15 +104,8 @@
         </div>
     </header>
 
-    <!-- Main Game Section -->
     <main class="container mx-auto px-4 py-8">
         <div class="glass-card p-6 md:p-10 text-center">
-            <!-- Game Container -->
-            <div id="game-placeholder" class="bg-black/50 rounded-lg aspect-video max-w-4xl mx-auto mb-8 border-2 border-dashed border-[#00f6ff] flex items-center justify-center overflow-hidden">
-                 <video id="hero-video" src="assets/hero-video.mp4" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
-            </div>
-
-            <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
                 <button id="play-button" class="w-full sm:w-auto font-game text-lg bg-[#00f6ff] text-black py-4 px-10 rounded-full btn-glow transform hover:scale-105 transition-transform duration-300">
                     Play Game
@@ -124,7 +116,30 @@
             </div>
         </div>
 
-        <!-- Plan Section -->
+        <section id="nft" class="mt-16">
+            <h2 class="text-3xl md:text-4xl font-game text-center mb-10 text-white drop-shadow-[0_0_8px_#ff00ff]">Exclusive NFT Collection</h2>
+            <div class="glass-card p-6 md:p-8">
+                <div class="mb-8 rounded-lg overflow-hidden border-2 border-[#00f6ff]">
+                    <video src="assets/nft-main.mp4" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="rounded-lg overflow-hidden border-2 border-[#ff00ff]">
+                        <video src="assets/nft-1.mp4" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                    </div>
+                    <div class="rounded-lg overflow-hidden border-2 border-[#ff00ff]">
+                        <video src="assets/nft-2.mp4" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                    </div>
+                    <div class="rounded-lg overflow-hidden border-2 border-[#ff00ff]">
+                        <video src="assets/nft-3.mp4" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                    </div>
+                    <div class="rounded-lg overflow-hidden border-2 border-[#ff00ff]">
+                        <video src="assets/nft-4.mp4" autoplay loop muted playsinline class="w-full h-full object-cover"></video>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section id="plan" class="mt-16">
             <h2 class="text-3xl md:text-4xl font-game text-center mb-10 text-white drop-shadow-[0_0_8px_#ff00ff]">Our Plan</h2>
 
@@ -139,7 +154,6 @@
             </div>
 
 
-            <!-- Creator Reward Target -->
             <div class="glass-card p-6 md:p-8 mb-8">
                 <h3 class="font-bold text-2xl mb-4 text-[#00f6ff]">Creator Reward Target</h3>
                 <div class="relative pt-8 pb-8">
@@ -152,7 +166,6 @@
             </div>
 
 
-            <!-- Buy Back & Burn -->
             <div class="glass-card p-6 md:p-8">
                 <h3 class="font-bold text-2xl mb-4 text-[#ff00ff]">Buy Back & Burn</h3>
                  <div class="relative pt-8 pb-8">
@@ -166,8 +179,7 @@
         </section>
     </main>
 
-    <!-- Footer / Community -->
-     <footer class="py-12 mt-12 text-center">
+    <footer class="py-12 mt-12 text-center">
         <div class="container mx-auto px-4">
              <a href="https://t.me/+95pSQFZgXPU4MzFk" target="_blank" rel="noopener noreferrer" class="inline-flex items-center font-game text-lg bg-[#0088cc] text-white py-4 px-10 rounded-full btn-glow transform hover:scale-105 transition-transform duration-300 shadow-lg">
                 <svg class="w-8 h-8 mr-4" viewBox="0 0 24 24" fill="currentColor">
@@ -192,36 +204,34 @@
         buyButton.addEventListener('click', () => {
             window.open('https://raydium.io/swap/?inputCurrency=sol&outputCurrency=28ftk219Evyasf9pWd2j42qG6k6f4pTTEBqJj5r3E2p3&fixed=in', '_blank');
         });
-        
+
         // --- ROADMAP PROGRESS BAR LOGIC ---
         const creatorTargets = [1, 10, 20, 30, 40, 50, 60, 70, 80, 100]; // in thousands
         const burnTargets = [0.5, 5, 15, 25, 35, 45, 55, 65, 75, 95]; // in thousands
 
         const creatorContainer = document.getElementById('creator-targets');
         const burnContainer = document.getElementById('burn-targets');
-        
+
         function createTargetPoints(container, targets, maxTarget) {
             targets.forEach(target => {
                 const percentage = (target / maxTarget) * 100;
                 const point = document.createElement('div');
                 point.className = 'target-point';
                 point.style.left = `${percentage}%`;
-                
+
                 const label = document.createElement('span');
                 label.className = 'target-label';
                 label.textContent = `${target}k`;
-                
+
                 point.appendChild(label);
                 container.appendChild(point);
             });
         }
-        
+
         createTargetPoints(creatorContainer, creatorTargets, 100);
         createTargetPoints(burnContainer, burnTargets, 100);
-        
+
     </script>
 
 </body>
 </html>
-
-
